@@ -60,6 +60,10 @@ bool Point2dSort (Point2d const & lhs,
 IplImage * textDetection (IplImage *    float_input,
                           bool dark_on_light);
 
+IplImage * simpleTextDetection(IplImage *input, bool dark_on_light,
+        double threshold_low, double threshold_high);
+IplImage * simpleTextDetection(IplImage *input, bool dark_on_light);
+
 void strokeWidthTransform (IplImage * edgeImage,
                            IplImage * gradientX,
                            IplImage * gradientY,

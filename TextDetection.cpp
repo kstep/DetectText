@@ -282,6 +282,88 @@ void renderChains (IplImage * SWTImage,
 	cvReleaseImage(&outTemp);
 }
 
+#define CV_IMAGE_CREATE(varname, color) IplImage * varname = cvCreateImage(inputSize, IPL_DEPTH_##color, 1)
+IplImage * simpleTextDetection(IplImage *input, bool dark_on_light, double threshold_low, double threshold_high)
+{
+    assert(input->depth == IPL_DEPTH_8U);
+    assert(input->nChannels == 3);
+
+    CvSize inputSize = cvGetSize(input);
+
+    // Grayscale
+    CV_IMAGE_CREATE(grayImage, 8U);
+    cvCvtColor(input, grayImage, CV_RGB2GRAY);
+
+    // Edge
+    CV_IMAGE_CREATE(edgeImage, 8U);
+    cvCanny(grayImage, edgeImage, threshold_low, threshold_high, 3);
+
+    // Gaussian blur
+    CV_IMAGE_CREATE(gaussianImage, 32F);
+    cvConvertScale(grayImage, gaussianImage, 1.0/255.0, 0);
+    cvReleaseImage(&grayImage);
+    cvSmooth(gaussianImage, gaussianImage, CV_GAUSSIAN, 5, 5);
+
+    // Gradients
+    CV_IMAGE_CREATE(gradientX, 32F);
+    cvSobel(gaussianImage, gradientX, 1, 0, CV_SCHARR); cvSmooth(gradientX, gradientX, 3, 3);
+    CV_IMAGE_CREATE(gradientY, 32F);
+    cvSobel(gaussianImage, gradientY, 0, 1, CV_SCHARR); cvSmooth(gradientY, gradientY, 3, 3);
+    cvReleaseImage(&gaussianImage);
+
+    std::vector<Ray> rays;
+    CV_IMAGE_CREATE(SWTImage, 32F);
+
+    for (int row = 0; row < input->height; row++) {
+        float* ptr = (float*)(SWTImage->imageData + row * SWTImage->widthStep);
+        for (int col = 0; col < input->width; col++) {
+            *ptr++ = -1;
+        }
+    }
+
+    // SWT!!!
+    strokeWidthTransform(edgeImage, gradientX, gradientY, dark_on_light, SWTImage, rays);
+    cvReleaseImage(&edgeImage);
+    cvReleaseImage(&gradientX);
+    cvReleaseImage(&gradientY);
+
+    SWTMedianFilter(SWTImage, rays);
+
+    // Calculate legally connect components from SWT and gradient image.
+    // return type is a vector of vectors, where each outer vector is a component and
+    // the inner vector contains the (y,x) of each pixel in that component.
+    std::vector<std::vector<Point2d> > components = findLegallyConnectedComponents(SWTImage, rays);
+
+    // Filter the components
+    std::vector<std::vector<Point2d> > validComponents;
+    std::vector<std::pair<Point2d,Point2d> > compBB;
+    std::vector<Point2dFloat> compCenters;
+    std::vector<float> compMedians;
+    std::vector<Point2d> compDimensions;
+    filterComponents(SWTImage, components, validComponents, compCenters, compMedians, compDimensions, compBB);
+
+    // Make chains of components
+    std::vector<Chain> chains;
+    chains = makeChains(input, validComponents, compCenters, compMedians, compDimensions, compBB);
+
+    // Build output
+    CV_IMAGE_CREATE(output, 8U);
+    renderChains(SWTImage, validComponents, chains, output);
+    cvReleaseImage(&SWTImage);
+
+    // Result format
+    IplImage *result = cvCreateImage(inputSize, IPL_DEPTH_8U, 3);
+    cvCvtColor(output, result, CV_GRAY2RGB);
+
+    cvReleaseImage(&output);
+    return result;
+}
+
+IplImage * simpleTextDetection(IplImage *input, bool dark_on_light) {
+    return simpleTextDetection(input, dark_on_light, 175.0, 320.0);
+}
+
+
 IplImage * textDetection (IplImage * input, bool dark_on_light)
 {
     assert ( input->depth == IPL_DEPTH_8U );

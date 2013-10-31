@@ -82,7 +82,7 @@ int mainTextDetection ( int argc, char * * argv )
   }
 
   // Detect text in the image
-  IplImage * output = textDetection ( byteQueryImage, atoi(argv[3]) );
+  IplImage * output = simpleTextDetection ( byteQueryImage, atoi(argv[3]) );
   cvReleaseImage ( &byteQueryImage );
   cvSaveImage ( argv[2], output );
   cvReleaseImage ( &output );
