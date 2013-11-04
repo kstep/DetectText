@@ -230,7 +230,7 @@ void renderChainsWithBoxes (IplImage * SWTImage,
     IplImage * outTemp =
             cvCreateImage ( cvGetSize ( output ), IPL_DEPTH_32F, 1 );
 
-    std::cout << componentsRed.size() << " components after chaining" << std::endl;
+    //std::cout << componentsRed.size() << " components after chaining" << std::endl;
     renderComponents(SWTImage,componentsRed,outTemp);
     std::vector<std::pair<CvPoint,CvPoint> > bb;
     bb = findBoundingBoxes(components, chains, compBB, outTemp);
@@ -274,7 +274,7 @@ void renderChains (IplImage * SWTImage,
             componentsRed.push_back(components[i]);
         }
     }
-    std::cout << componentsRed.size() << " components after chaining" << std::endl;
+    //std::cout << componentsRed.size() << " components after chaining" << std::endl;
     IplImage * outTemp =
             cvCreateImage ( cvGetSize ( output ), IPL_DEPTH_32F, 1 );
     renderComponents(SWTImage,componentsRed,outTemp);
@@ -285,6 +285,7 @@ void renderChains (IplImage * SWTImage,
 #define CV_IMAGE_CREATE(varname, color) IplImage * varname = cvCreateImage(inputSize, IPL_DEPTH_##color, 1)
 IplImage * simpleTextDetection(IplImage *input, bool dark_on_light, double threshold_low, double threshold_high)
 {
+    //std::cout << input->nChannels << std::endl;
     assert(input->depth == IPL_DEPTH_8U);
     assert(input->nChannels == 3);
 
@@ -368,7 +369,7 @@ IplImage * textDetection (IplImage * input, bool dark_on_light)
 {
     assert ( input->depth == IPL_DEPTH_8U );
     assert ( input->nChannels == 3 );
-    std::cout << "Running textDetection with dark_on_light " << dark_on_light << std::endl;
+    //std::cout << "Running textDetection with dark_on_light " << dark_on_light << std::endl;
     // Convert to grayscale
     IplImage * grayImage =
             cvCreateImage ( cvGetSize ( input ), IPL_DEPTH_8U, 1 );
@@ -636,7 +637,7 @@ findLegallyConnectedComponents (IplImage * SWTImage,
 
         std::vector<std::vector<Point2d> > components;
         components.reserve(num_comp);
-        std::cout << "Before filtering, " << num_comp << " components and " << num_vertices << " vertices" << std::endl;
+        //std::cout << "Before filtering, " << num_comp << " components and " << num_vertices << " vertices" << std::endl;
         for (int j = 0; j < num_comp; j++) {
             std::vector<Point2d> tmp;
             components.push_back( tmp );
@@ -702,7 +703,7 @@ findLegallyConnectedComponentsRAY (IplImage * SWTImage,
 
         std::vector<std::vector<Point2d> > components;
         components.reserve(num_comp);
-        std::cout << "Before filtering, " << num_comp << " components and " << num_vertices << " vertices" << std::endl;
+        //std::cout << "Before filtering, " << num_comp << " components and " << num_vertices << " vertices" << std::endl;
         for (int j = 0; j < num_comp; j++) {
             std::vector<Point2d> tmp;
             components.push_back( tmp );
@@ -903,7 +904,7 @@ void filterComponents(IplImage * SWTImage,
         validComponents.reserve(tempComp.size());
         compBB.reserve(tempComp.size());
 
-        std::cout << "After filtering " << validComponents.size() << " components" << std::endl;
+        //std::cout << "After filtering " << validComponents.size() << " components" << std::endl;
 }
 
 bool sharesOneEnd( Chain c0, Chain c1) {
@@ -999,7 +1000,7 @@ std::vector<Chain> makeChains( IplImage * colorImage,
             }
         }
     }
-    std::cout << chains.size() << " eligible pairs" << std::endl;
+    //std::cout << chains.size() << " eligible pairs" << std::endl;
     std::sort(chains.begin(), chains.end(), &chainSortDist);
 
     std::cerr << std::endl;
@@ -1202,6 +1203,7 @@ std::vector<Chain> makeChains( IplImage * colorImage,
         }
     }
     chains = newchains;
-    std::cout << chains.size() << " chains after merging" << std::endl;
+    //std::cout << chains.size() << " chains after merging" << std::endl;
     return chains;
 }
+
