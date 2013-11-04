@@ -256,22 +256,19 @@ static PyObject* pyopencv_from(const Mat& m)
 
 // The conversions functions above are taken from OpenCV. The following function is 
 // what we define to access the C++ code we are interested in.
-PyObject* detect_text(PyObject* image, bool dark_on_light)
+PyObject* detect_text(PyObject* srcImage, bool dark_on_light)
 {
-    cv::Mat cvImage;
+    if (_import_array() < 0) {
+        return srcImage;
+    }
 
-    pyopencv_to(image, cvImage); // From OpenCV's source
+    Mat cvImage;
 
-    IplImage stub, *inputImage, *outputImage;
-    inputImage = cvGetImage(cvImage, &stub);
-    outputImage = simpleTextDetection(inputImage, dark_on_light);
-    cvReleaseImage(&inputImage);
+    pyopencv_to(srcImage, cvImage); // From OpenCV's source
 
-    CvMat mstub, *processedImage;
-    processedImage = cvGetMat(outputImage, &mstub, 0, 0);
-    cvReleaseImage(&outputImage);
+    Mat *mat = new Mat(simpleTextDetection(new IplImage(cvImage), dark_on_light));
 
-    return pyopencv_from(processedImage); // From OpenCV's source
+    return pyopencv_from(*mat); // From OpenCV's source
 }
 
 BOOST_PYTHON_MODULE(textdetection) {

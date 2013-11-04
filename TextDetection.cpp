@@ -285,6 +285,7 @@ void renderChains (IplImage * SWTImage,
 #define CV_IMAGE_CREATE(varname, color) IplImage * varname = cvCreateImage(inputSize, IPL_DEPTH_##color, 1)
 IplImage * simpleTextDetection(IplImage *input, bool dark_on_light, double threshold_low, double threshold_high)
 {
+    //std::cout << input->nChannels << std::endl;
     assert(input->depth == IPL_DEPTH_8U);
     assert(input->nChannels == 3);
 
