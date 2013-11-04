@@ -271,7 +271,7 @@ PyObject* detect_text(PyObject* srcImage, bool dark_on_light)
     return pyopencv_from(*mat); // From OpenCV's source
 }
 
-BOOST_PYTHON_MODULE(textdetection) {
+BOOST_PYTHON_MODULE(pytextdetection) {
     boost::python::def("detect_text", detect_text);
 }
 
