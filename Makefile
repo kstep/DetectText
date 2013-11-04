@@ -17,6 +17,6 @@ lib: libPyTextDetection.so
 build: DetectText
 
 clean:
-	rm -f DetectText *.o *.so
+	rm -f DetectText *.o *.so *.pyc
 
 .PHONY: build lib clean
